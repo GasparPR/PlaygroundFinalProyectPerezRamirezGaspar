@@ -1,45 +1,27 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, username, full_name, phone, password=None, **extra_fields):
-        if not email:
-            raise ValueError(_('El Email es obligatorio'))
-        email = self.normalize_email(email)
-        user = self.model(email=email, username=username, full_name=full_name, phone=phone, **extra_fields)
+    def create_user(self, username, password=None):
+        if not username:
+            raise ValueError('El nombre de usuario es obligatorio')
+        user = self.model(username=username)
         user.set_password(password)
-        user.save(using=self._db)
+        user.save()
         return user
 
-    def create_superuser(self, email, username, full_name, phone, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError(_('El superusuario debe tener is_staff=True.'))
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError(_('El superusuario debe tener is_superuser=True.'))
+class CustomUser(AbstractBaseUser):
+    username = models.CharField(max_length=30, unique=True)
+    first_name = models.CharField(max_length=30, default='default')
+    last_name = models.CharField(max_length=30, default='default')
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
-        return self.create_user(email, username, full_name, phone, password, **extra_fields)
-
-class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(_('Email'), unique=True)
-    username = models.CharField(_('Usuario'), max_length=30, unique=True)
-    full_name = models.CharField(_('Nombre completo'), max_length=100)
-    phone = models.CharField(_('Teléfono'), max_length=15)
-    is_active = models.BooleanField(_('Activo'), default=True)
-    is_staff = models.BooleanField(_('Staff'), default=False)
-    date_joined = models.DateTimeField(_('Fecha de registro'), default=timezone.now)
-    groups = models.ManyToManyField(Group, verbose_name=_('groups'), blank=True, related_name='user_groups')
-    user_permissions = models.ManyToManyField(Permission, verbose_name=_('user permissions'), blank=True, related_name='user_user_permissions')
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'full_name', 'phone']
-
-    def __str__(self):
+    def _str_(self):
         return self.username

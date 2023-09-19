@@ -5,20 +5,27 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 
 
-# Create your views here.
-
-
 def crear_tecnologia(request):
     if request.method == 'POST':
         form = FormularioTecnologia(request.POST, request.FILES)
         if form.is_valid():
+            # Validar y convertir campos a enteros
+            year = int(request.POST['year'])
+            precio = int(request.POST['precio'])
+            telefono_contacto = int(request.POST['telefonoContacto'])
+            
+            # Asignar los valores convertidos de nuevo al formulario
+            form.cleaned_data['year'] = year
+            form.cleaned_data['precio'] = precio
+            form.cleaned_data['telefonoContacto'] = telefono_contacto
+            
+            # Guardar el formulario
             form.save()
             print("Formulario válido, datos guardados en la base de datos")
-            return redirect('index.html')  
+            return redirect('index')  # Corregido: 'index.html' a 'index'
     else:
         form = FormularioTecnologia()
-        
-    
+
     return render(request, 'crear_tecnologia.html', {'form': form})
 
 def FormularioComentario(request):
@@ -39,25 +46,4 @@ def FormularioComentario(request):
 def index(request):
     return render(request, 'index.html')
 
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('index')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
 
-def register_view(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            print("creado correctamente")
-            return redirect('index')
-    else:
-        form = UserCreationForm()
-    return render(request, 'register_view.html', {'form': form})

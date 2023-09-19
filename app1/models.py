@@ -3,26 +3,18 @@ from django.db import models
 # Create your models here.
 
 class Tecnologia(models.Model):
-    tecnologiaSeleccion = (
-    ('teclado','Teclado'),
-    ('monitor', 'Monitor'),
-    ('mouse','Mouse'),
-    ('cpu','Cpu'),
-    ('auriculares','Auriculares'),
-    ('parlante','Parlantes'),
-    ('otro', 'Otro'),
-    )
-    titulo = models.CharField(max_length=200)
-    usuario = models.CharField(max_length=200)
-    tecnologia = models.CharField(max_length=15, default='cpu')
-    marca = models.CharField(max_length=40)
-    modelo = models.CharField(max_length=40)
+
+    titulo = models.CharField(max_length=200, default='default')
+    usuario = models.CharField(max_length=200, default='default')
+    tecnologia = models.CharField(max_length=15, default='default')
+    marca = models.CharField(max_length=40, default='default')
+    modelo = models.CharField(max_length=40, default='default')
     descripcion = models.TextField(null=True, blank=True)
     year = models.IntegerField() 
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    precio = models.IntegerField() 
     fechaPublicacion = models.DateTimeField(auto_now_add=True)
     telefonoContacto = models.IntegerField()
-    emailContacto = models.EmailField()
+    emailContacto = models.EmailField( default='example@example.com')
     imagenTecnologia = models.ImageField(null=True, blank=True, upload_to="imagenes/")
 
     class Meta:
